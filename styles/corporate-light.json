@@ -1,0 +1,13 @@
+{
+  "name": "Корпоративный светлый",
+  "summary": "Светлый фон и синий акцент.",
+  "colors": {
+    "background": "#F5F7FA",
+    "surface": "#FFFFFF",
+    "ink": "#1F2A37",
+    "muted": "#6B7280",
+    "line": "#E5E7EB",
+    "accent": "#2F6FED",
+    "onAccent": "#FFFFFF"
+  }
+}

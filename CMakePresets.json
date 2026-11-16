@@ -1,0 +1,33 @@
+{
+    "version": 6,
+    "configurePresets": [
+        {
+            "name": "qt-mingw-debug",
+            "displayName": "Qt 6.12.0 MinGW 64-bit Debug",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/windows-debug",
+            "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" },
+            "environment": {
+                "PATH": "C:/Apps/Qt/Tools/mingw1310_64/bin;C:/Apps/Qt/6.12.0/mingw_64/bin;C:/Apps/Qt/Tools/Ninja;$penv{PATH}"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_COMPILER": "C:/Apps/Qt/Tools/mingw1310_64/bin/g++.exe",
+                "CMAKE_MAKE_PROGRAM": "C:/Apps/Qt/Tools/Ninja/ninja.exe",
+                "CMAKE_PREFIX_PATH": "C:/Apps/Qt/6.12.0/mingw_64",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": true
+            }
+        },
+        {
+            "name": "qt-mingw-release",
+            "displayName": "Qt 6.12.0 MinGW 64-bit Release",
+            "inherits": "qt-mingw-debug",
+            "binaryDir": "${sourceDir}/build/windows-release",
+            "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+        }
+    ],
+    "buildPresets": [
+        { "name": "qt-mingw-debug", "configurePreset": "qt-mingw-debug" },
+        { "name": "qt-mingw-release", "configurePreset": "qt-mingw-release" }
+    ]
+}

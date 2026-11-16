@@ -1,0 +1,7 @@
+{
+    "id": "example.status",
+    "name": "Состояние подключения",
+    "summary": "Пример страницы плагина и записи в папку данных LinCtrl.",
+    "apiVersion": 1,
+    "entry": "Page.qml"
+}

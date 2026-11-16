@@ -1,0 +1,13 @@
+{
+  "name": "Корпоративный тёмный",
+  "summary": "Тёмный фон и голубой акцент.",
+  "colors": {
+    "background": "#121923",
+    "surface": "#1B2533",
+    "ink": "#E6EDF6",
+    "muted": "#A2AFC1",
+    "line": "#334155",
+    "accent": "#82AAFF",
+    "onAccent": "#111827"
+  }
+}
