@@ -43,11 +43,16 @@ jobs:
           cmake --build $build --config Release --parallel
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Copy-Item -LiteralPath "$build/Release/applinctrl.exe" -Destination $package
-          Copy-Item -LiteralPath plugins -Destination $package -Recurse
+          if (Test-Path -LiteralPath plugins) { Copy-Item -LiteralPath plugins -Destination $package -Recurse }
           windeployqt --release --qmldir qml --qmldir .github/qt-deploy "$package/applinctrl.exe"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if (!(Test-Path -LiteralPath "$package/qml/QtQuick/Dialogs/qmldir")) { throw 'В пакет не вошёл QtQuick.Dialogs' }
           Compress-Archive -Path $package.FullName -DestinationPath "archives/linctrl-desktop-$env:TAG-win-x64.zip"
+      - name: Установить patchelf
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y patchelf
       - name: Собрать Linux
         if: runner.os == 'Linux'
         env:
@@ -65,14 +70,18 @@ jobs:
           for library in "$QT_ROOT_DIR"/lib/libicu*.so*; do
             if [[ -e "$library" ]]; then cp -a "$library" "$package/lib/"; fi
           done
-          cp -a plugins "$package/"
+          if [[ -d plugins ]]; then cp -a plugins "$package/"; fi
           cp .github/qt-deploy/qt.conf "$package/"
           install .github/qt-deploy/linctrl "$package/linctrl"
           test -f "$package/qml/QtQuick/Dialogs/qmldir"
-          LD_LIBRARY_PATH="$PWD/$package/lib" ldd "$package/applinctrl" | tee dependencies.txt
-          ! grep -q 'not found' dependencies.txt
+          patchelf --force-rpath --set-rpath '$ORIGIN/lib' "$package/applinctrl"
+          env -u LD_LIBRARY_PATH ldd "$package/applinctrl" | tee dependencies.txt
+          if grep -q 'not found' dependencies.txt; then exit 1; fi
+          grep -F "libQt6Qml.so.6 => $PWD/$package/lib/libQt6Qml.so.6" dependencies.txt
           status=0
-          QT_QPA_PLATFORM=offscreen XDG_DATA_HOME="$RUNNER_TEMP/linctrl-test" timeout 5 "$package/linctrl" || status=$?
+          env -u LD_LIBRARY_PATH -u QT_PLUGIN_PATH -u QML_IMPORT_PATH -u QML2_IMPORT_PATH \
+            QT_QPA_PLATFORM=offscreen XDG_DATA_HOME="$RUNNER_TEMP/linctrl-test" \
+            timeout 5 "$package/applinctrl" || status=$?
           test "$status" -eq 124
           tar -czf "archives/linctrl-desktop-$TAG-$RID.tar.gz" -C package linctrl
       - uses: actions/upload-artifact@v4
